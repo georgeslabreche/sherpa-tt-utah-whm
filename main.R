@@ -1,6 +1,4 @@
 library(here)
-require(ggplot2)
-require(reshape2)
 
 if(exists('data_flat_terrain_1') == FALSE){
   filepath_flat_terrain_1 = here('data', 'flatTerrain_01-withGPS.csv')
@@ -37,7 +35,7 @@ data_list = list(
 )
 
 # Selected dataset for analysis.
-data_selected = data_list$FLAT_1
+data_selected = data_list$STEEP_1
 
 # This function gets the slop angles values associated with each measurement.
 # Slope angle values are based on Table 5: Slope angles for Steep-Slope tests
@@ -201,10 +199,10 @@ build_power_draw_df = function(df){
 # Get the local minima, maxima, and media of a given vector of values.
 # This function is a modified verion of the one found here: https://stackoverflow.com/a/43061365
 # The modification consists of including media.
-inflect = function(x, threshold = 1){
-  up   = sapply(1:threshold, function(n) c(x[-(seq(n))], rep(NA, n)))
-  down = sapply(-1:-threshold, function(n) c(rep(NA,abs(n)), x[-seq(length(x), length(x) - abs(n) + 1)]))
-  a    = cbind(x,up,down)
+inflect = function(y, threshold = 1){
+  up   = sapply(1:threshold, function(n) c(y[-(seq(n))], rep(NA, n)))
+  down = sapply(-1:-threshold, function(n) c(rep(NA,abs(n)), y[-seq(length(y), length(y) - abs(n) + 1)]))
+  a    = cbind(y,up,down)
   list(minima = which(apply(a, 1, min) == a[,1]),
        maxima = which(apply(a, 1, max) == a[,1]),
        media = which(apply(a, 1, median) == a[,1]))
@@ -249,23 +247,23 @@ plot_maxima_and_minima = function(x, y, threshold, title=''){
         y=y[local_media_indices],
         col='black', lty=2)
   
-  legend('topright', legend=c('Measured', 'Local Minima', 'Local Maxima', 'Media'),
+  legend('topleft', legend=c('Measured', 'Local Minima', 'Local Maxima', 'Media'),
          col=c('grey', 'coral2', 'red', 'black'), lty=c(1, 1, 1, 2), cex=0.8)
   
   title(main=title)
 }
 
 # # Locomotion.
-# dev.new()
-# plot_maxima_and_minima(x=data_selected$odoPos_x, y=data_power_draw$Locomotion, threshold=100, 'Locomotion Power Draw on Flat Terrain')
+dev.new()
+plot_maxima_and_minima(x=data_selected$odoPos_x, y=data_power_draw$Locomotion, threshold=100, 'Locomotion Power Draw on Upslope Terrain')
 
 # # Drive.
-# dev.new()
-# plot_maxima_and_minima(x=data_selected$odoPos_x, y=data_power_draw$Drive, threshold=100, 'Drive Power Draw on Flat Terrain')
+dev.new()
+plot_maxima_and_minima(x=data_selected$odoPos_x, y=data_power_draw$Drive, threshold=100, 'Drive Power Draw on Upslope Terrain')
 
 # # Suspension.
-# dev.new()
-# plot_maxima_and_minima(x=data_selected$odoPos_x, y=data_power_draw$Suspension, threshold=100, 'Suspension Power Draw on Flat Terrain')
+dev.new()
+plot_maxima_and_minima(x=data_selected$odoPos_x, y=data_power_draw$Suspension, threshold=100, 'Suspension Power Draw on Upslope Terrain')
 
 
 plot(x=data_selected$odoPos_x,
@@ -279,56 +277,56 @@ plot(x=data_selected$odoPos_x,
 # Plot power draw and charge sections. #
 ########################################
 
-# ###########################################################
-# # Plot suspension, drive, and locomotion power draw data. #
-# # Include slope angle.                                    #
-# ###########################################################
-# dev.new()
-# 
-# # We want to a plot with 2 x-axes (power draw and slope angle).
-# par(mar = c(5, 4, 4, 4) + 0.3)
-# 
-# # Plot locomotion power draw.
-# plot(x=data_selected$odoPos_x,
-#      y=data_power_draw$Locomotion,
-#      xlab='Odometry Distance [m]',
-#      ylab='Power [W]',
-#      ylim=c(0,370),
-#      type='l', col='red')
-# 
-# # Plot drive power draw.
-# lines(x=data_selected$odoPos_x,
-#       y=data_power_draw$Drive,
-#       col='blue')
-# 
-# # Plot Suspension power draw.
-# lines(x=data_selected$odoPos_x,
-#       y=data_power_draw$Suspension,
-#       col='green')
-# 
-# 
-# # Allow a second plot on the same graph.
-# # This is for the second x-axis (slope angle).
-# par(new=TRUE)
-# plot(x=data_selected$odoPos_x, y=get_slope_angles(data_selected),
-#      xlab="", ylab="", ylim=c(0,30),
-#      axes=FALSE, type='l', lwd=2, col="black")
-# 
-# mtext("Slope Angle [deg]", side=4, padj=3.5)
-# axis(4, ylim=c(0,30), las=1)
-# 
-# # Legend and title.
-# legend('topleft',
-#        title='Power Draw',
-#        legend=c('Locomotion', 'Drive', 'Suspension'),
-#        col=c('red', 'blue', 'green'), lty=1, cex=0.8)
-# 
-# legend('topright', legend=c('Slope Angle'),
-#        col=c('black'), lty=1, cex=0.8, lwd=2)
-# 
-# # Plot title.
-# plot_title = paste('Steep Power Upslope\n Wp = ', round(max(data_power_draw$Locomotion), 2), ' W', sep='')
-# title(main=plot_title)
+###########################################################
+# Plot suspension, drive, and locomotion power draw data. #
+# Include slope angle.                                    #
+###########################################################
+dev.new()
+
+# We want to a plot with 2 x-axes (power draw and slope angle).
+par(mar = c(5, 4, 4, 4) + 0.3)
+
+# Plot locomotion power draw.
+plot(x=data_selected$odoPos_x,
+     y=data_power_draw$Locomotion,
+     xlab='Odometry Distance [m]',
+     ylab='Power [W]',
+     ylim=c(0,370),
+     type='l', col='red')
+
+# Plot drive power draw.
+lines(x=data_selected$odoPos_x,
+      y=data_power_draw$Drive,
+      col='blue')
+
+# Plot Suspension power draw.
+lines(x=data_selected$odoPos_x,
+      y=data_power_draw$Suspension,
+      col='green')
+
+
+# Allow a second plot on the same graph.
+# This is for the second x-axis (slope angle).
+par(new=TRUE)
+plot(x=data_selected$odoPos_x, y=get_slope_angles(data_selected),
+     xlab="", ylab="", ylim=c(0,30),
+     axes=FALSE, type='l', lwd=2, col="black")
+
+mtext("Slope Angle [deg]", side=4, padj=3.5)
+axis(4, ylim=c(0,30), las=1)
+
+# Legend and title.
+legend('topleft',
+       title='Power Draw',
+       legend=c('Locomotion', 'Drive', 'Suspension'),
+       col=c('red', 'blue', 'green'), lty=1, cex=0.8)
+
+legend('topright', legend=c('Slope Angle'),
+       col=c('black'), lty=1, cex=0.8, lwd=2)
+
+# Plot title.
+plot_title = paste('Steep Power Upslope\n Wp = ', round(max(data_power_draw$Locomotion), 2), ' W', sep='')
+title(main=plot_title)
 
 
 
